@@ -11,4 +11,6 @@ app.include_router(attendance_router)
 
 @app.get("/")
 def root(request: Request):
-    return {"status": "EZClock API running", "your_ip": request.client.host}
+    forwarded_for = request.headers.get("x-forwarded-for")
+    client_ip = forwarded_for.split(",")[0].strip() if forwarded_for else request.client.host
+    return {"status": "EZClock API running", "your_ip": client_ip}

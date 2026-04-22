@@ -14,9 +14,12 @@ class AttendanceRequest(BaseModel):
     pin: str
 
 def verify_ip(request: Request):
-    client_ip = request.client.host
-    if ALLOWED_IP and client_ip != ALLOWED_IP:
-        raise HTTPException(status_code=403, detail="Access denied: unauthorized network")
+    if not ALLOWED_IP:
+        return
+    forwarded_for = request.headers.get("x-forwarded-for")
+    client_ip = forwarded_for.split(",")[0].strip() if forwarded_for else request.client.host
+    if client_ip != ALLOWED_IP:
+        raise HTTPException(status_code=403, detail=f"Access denied: {client_ip}")
 
 @router.post("/attendance/checkin")
 def checkin(data: AttendanceRequest, request: Request):
