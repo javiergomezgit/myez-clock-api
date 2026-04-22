@@ -47,3 +47,17 @@ def list_employees(request: Request):
     from services.odoo import list_all_employees
     result = list_all_employees()
     return {"employees": result}
+
+@router.post("/attendance/status")
+def attendance_status(data: AttendanceRequest, request: Request):
+    verify_ip(request)
+    employee = get_employee_by_pin(data.pin)
+    if not employee:
+        raise HTTPException(status_code=404, detail="Employee not found or PIN incorrect")
+    from services.odoo import get_attendance_status
+    is_clocked_in = get_attendance_status(employee['id'])
+    return {
+        "employee": employee['name'],
+        "employee_id": employee['id'],
+        "is_clocked_in": is_clocked_in
+    }

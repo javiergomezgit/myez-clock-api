@@ -71,3 +71,15 @@ def list_all_employees():
         [[['active', '=', True]]],
         {'fields': ['id', 'name'], 'limit': 100}
     )
+
+
+def get_attendance_status(employee_id: int):
+    cfg = get_config()
+    uid = get_uid(cfg)
+    models = get_models(cfg)
+    open_records = models.execute_kw(cfg['db'], uid, cfg['api_key'],
+        'hr.attendance', 'search_read',
+        [[['employee_id', '=', employee_id], ['check_out', '=', False]]],
+        {'fields': ['id', 'check_in'], 'limit': 1}
+    )
+    return len(open_records) > 0
